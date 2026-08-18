@@ -57,8 +57,14 @@ const Store = (function () {
     return body;
   }
 
-  // columns worth having, in the order the field wants them. `thumb` is the
+  // Columns worth having, in the order the field wants them. `thumb` is the
   // heavy one — a 256 px JPEG as a data URI, ~16 kB — so pages are small.
+  //
+  // `clip` is stored on every read picture and deliberately not asked for
+  // here. Nothing on the stage uses it; it exists so the archive can be
+  // re-centred later against its own accumulated mean, which is a job for a
+  // script that selects the column on purpose. Fetching three floats per row
+  // on every page load to never look at them is not free at a thousand rows.
   const COLS = 'id,created_at,ar,aff,feat,rgb,method,title';
 
   return {
