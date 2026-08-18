@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE COMMONS — an archive that accepts</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f2f1ee'/%3E%3Ccircle cx='11' cy='12' r='6' fill='%23c8483a' opacity='.75'/%3E%3Ccircle cx='21' cy='13' r='6' fill='%232f6f8f' opacity='.75'/%3E%3Ccircle cx='16' cy='21' r='7' fill='%238a7a2e' opacity='.75'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <canvas id="gl"></canvas>
+
+  <h1 class="mark">THE COMMONS <span>/ an archive that accepts</span></h1>
+
+  <div class="tip" id="tip"></div>
+
+  <!-- the way in. Everything else on this page is the field. -->
+  <button class="way" id="wayBtn" aria-expanded="false">contribute</button>
+
+  <div class="sheet" id="sheet" hidden>
+    <label class="row">
+      <span>invitation</span>
+      <input type="password" id="code" autocomplete="off" spellcheck="false" placeholder="code">
+    </label>
+    <label class="row">
+      <span>picture</span>
+      <input type="file" id="file" accept="image/*">
+    </label>
+    <div class="drop" id="drop">drop an image here</div>
+    <div class="say" id="say">The archive reads it, decides where it belongs, and keeps it.</div>
+    <div class="acts">
+      <button class="btn" id="sendBtn" disabled>give it to the archive</button>
+      <button class="btn ghost" id="closeBtn">close</button>
+    </div>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div class="boot" id="boot">loading archive…</div>
+</div>
+
+<script src="config.js"></script>
+<script src="store.js"></script>
+<script src="sift.js"></script>
+<script src="commons.js"></script>
+</body>
+</html>

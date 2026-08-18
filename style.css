@@ -1,0 +1,147 @@
+/* THE COMMONS
+   Forked from ../cloud/style.css and then almost entirely deleted. That piece
+   is an instrument and wears its panel on the outside; this one is a room you
+   walk into, so the chrome is a title, a way in, and nothing else. The palette
+   is unchanged — the same near-white light table, the same three inks — because
+   this is the same world with the doors unlocked. */
+
+:root{
+  --paper:#f2f1ee;
+  --panel:#e7e5e0;
+  --rule:#c9c5bd;
+  --ink:#1b1a18;
+  --ink2:#5d5952;
+  --ink3:#8b867d;
+  --self:#c8483a;
+  --other:#2f6f8f;
+  --coll:#8a7a2e;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font:12px/1.45 ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  -webkit-font-smoothing:antialiased; overflow:hidden;
+}
+
+.stage{position:fixed; inset:0; background:var(--paper); overflow:hidden}
+#gl{display:block; width:100%; height:100%; cursor:grab; touch-action:none}
+#gl:active{cursor:grabbing}
+
+/* ------------------------------------------------------------ the mark -- */
+.mark{
+  position:absolute; left:18px; top:15px; margin:0; z-index:3;
+  font-size:12px; font-weight:600; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--ink); pointer-events:none; user-select:none;
+}
+.mark span{color:var(--ink3); font-weight:400; letter-spacing:.07em; text-transform:none}
+
+/* the tally sits under the mark: three numbers, no labels. It is the only
+   reading of the state the piece offers unprompted. */
+.count{
+  position:absolute; left:18px; top:36px; z-index:3; display:flex; gap:11px;
+  font-size:10px; color:var(--ink3); pointer-events:none; user-select:none;
+  font-variant-numeric:tabular-nums;
+}
+.count i{font-style:normal; display:flex; align-items:center; gap:4px}
+.count b{font-weight:600; color:var(--ink2)}
+.count s{
+  width:6px; height:6px; border-radius:50%; text-decoration:none; display:block;
+}
+
+/* ----------------------------------------------------------- the way in -- */
+.way{
+  position:absolute; right:16px; bottom:14px; z-index:5;
+  font:inherit; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase;
+  padding:7px 13px; cursor:pointer; color:var(--ink);
+  background:rgba(242,241,238,.82); border:1px solid var(--rule); border-radius:2px;
+  backdrop-filter:blur(3px); transition:background .14s,border-color .14s;
+}
+.way:hover{background:var(--panel); border-color:var(--ink3)}
+.way.open{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+
+.sheet{
+  position:absolute; right:16px; bottom:50px; z-index:5; width:296px;
+  background:rgba(242,241,238,.94); border:1px solid var(--rule); border-radius:2px;
+  padding:12px; backdrop-filter:blur(6px);
+  box-shadow:0 10px 34px rgba(27,26,24,.10);
+}
+.sheet[hidden]{display:none}
+.row{display:flex; align-items:center; gap:9px; margin-bottom:8px}
+.row>span{
+  flex:0 0 64px; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink3);
+}
+.row input[type=password]{
+  flex:1 1 auto; min-width:0; font:inherit; font-size:11px; padding:5px 7px;
+  background:var(--paper); border:1px solid var(--rule); color:var(--ink);
+  border-radius:2px; outline:none;
+}
+.row input[type=password]:focus{border-color:var(--ink3)}
+.row input[type=file]{flex:1 1 auto; min-width:0; font:inherit; font-size:10px; color:var(--ink2)}
+.row input[type=file]::file-selector-button{
+  font:inherit; font-size:10px; padding:4px 8px; margin-right:8px; cursor:pointer;
+  background:var(--panel); border:1px solid var(--rule); color:var(--ink); border-radius:2px;
+}
+
+.drop{
+  margin:2px 0 9px; padding:16px 8px; text-align:center; border-radius:2px;
+  border:1px dashed var(--rule); color:var(--ink3);
+  font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+}
+.drop.hot{border-color:var(--ink); color:var(--ink); background:var(--panel)}
+.drop.has{border-style:solid; border-color:var(--ink3); color:var(--ink2); padding:6px 8px}
+.drop img{max-width:100%; max-height:96px; display:block; margin:0 auto 5px; border:1px solid var(--rule)}
+
+.say{
+  font-size:10px; line-height:1.55; color:var(--ink3); margin-bottom:9px;
+  min-height:2.6em;
+}
+.say b{color:var(--ink2); font-weight:600}
+.say .self{color:var(--self)} .say .other{color:var(--other)} .say .coll{color:var(--coll)}
+.say.bad{color:var(--self)}
+
+.acts{display:flex; gap:6px}
+.btn{
+  font:inherit; font-size:10.5px; padding:6px 10px; cursor:pointer; border-radius:2px;
+  background:var(--ink); color:var(--paper); border:1px solid var(--ink); flex:1 1 auto;
+  transition:opacity .14s;
+}
+.btn:hover:not(:disabled){opacity:.84}
+.btn:disabled{opacity:.34; cursor:default}
+.btn.ghost{background:transparent; color:var(--ink2); border-color:var(--rule); flex:0 0 auto}
+.btn.ghost:hover{border-color:var(--ink3); opacity:1}
+
+/* the whole stage accepts a drop, not just the little dashed box */
+.stage.dropping::after{
+  content:"give it to the archive"; position:absolute; inset:10px; z-index:8;
+  border:1px dashed var(--ink); border-radius:3px; color:var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+  background:rgba(242,241,238,.72); pointer-events:none;
+}
+
+/* ---------------------------------------------------------------- rest -- */
+.tip{
+  position:absolute; pointer-events:none; padding:4px 7px; font-size:10px; z-index:4;
+  background:rgba(27,26,24,.9); color:var(--paper); border-radius:2px;
+  transform:translate(10px,-50%); opacity:0; transition:opacity .1s; max-width:240px;
+}
+.tip.on{opacity:1}
+.boot{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  background:var(--paper); color:var(--ink3); font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; z-index:9;
+}
+.boot.gone{display:none}
+.boot.err{
+  color:var(--self); text-transform:none; letter-spacing:0; padding:40px;
+  text-align:center; line-height:1.7; max-width:62ch; margin:auto;
+}
+
+@media (max-width:560px){
+  .sheet{right:10px; left:10px; width:auto}
+  .way{right:10px}
+  .mark{font-size:11px}
+}

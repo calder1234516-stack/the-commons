@@ -1,0 +1,8 @@
+# absorb.py keeps the previous wall beside the new one. Useful locally,
+# pointless in history.
+*.before-absorb
+
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
