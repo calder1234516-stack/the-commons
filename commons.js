@@ -1184,9 +1184,12 @@ ui.send.addEventListener('click', async () => {
 
     try { localStorage.setItem('commons.code', code); } catch (e) { /* fine */ }
 
+    // the same shape the archive will hand back on the next load, thumb and
+    // all — absorb() reads the picture out of this row, so leaving it off
+    // means the contributor watches their own gift not arrive
     const row = {
-      id, ar: cv.width / cv.height, aff, feat, rgb, method: 'resemblance',
-      title: kind, created_at: new Date().toISOString(),
+      id, thumb: dataURL, ar: cv.width / cv.height, aff, feat, rgb,
+      method: 'resemblance', title: kind, created_at: new Date().toISOString(),
     };
     await absorb([row], { stir: true });
 
@@ -1206,8 +1209,13 @@ async function refine(code, id, cv) {
   try {
     read = await Sift.clipAffinity(cv, m => say('reading — ' + m));
   } catch (e) {
-    say('It is in, placed by resemblance. The reader could not be fetched, ' +
-      'which is a network away, not a fault of the picture.');
+    // The message to the contributor stays the same whatever went wrong,
+    // because from where they are standing it did not work and their picture
+    // is in regardless. The reason goes to the console, where it is of use —
+    // saying "could not be fetched" about a bug in this file cost an evening.
+    console.warn('the reader failed:', e);
+    say('It is in, placed by resemblance. The reader did not run, which is ' +
+      'between the archive and the network, not a fault of the picture.');
     return;
   }
   const aff = read.aff;
@@ -1239,7 +1247,10 @@ async function absorb(rows, opts) {
   let added = 0;
   for (const r of rows) {
     if (!r || seenIds.has(r.id)) continue;
-    seenIds.add(r.id);
+    // Marked as seen only once it is genuinely in. Claiming the id first and
+    // then failing to decode blacklists that picture for the rest of the
+    // session — it would be skipped by every later poll and never appear,
+    // with nothing said about it anywhere.
     let img;
     try { img = await decode(r.thumb); } catch (e) { continue; }
     const slot = givenAtlas.add(img);
@@ -1250,6 +1261,7 @@ async function absorb(rows, opts) {
         '— time to bake the given plates into the founding atlas');
       break;
     }
+    seenIds.add(r.id);
     const feat = Float64Array.from(r.feat || []);
     const pl = feat.length === Sift.FEAT_N
       ? Sift.place(Sift.zscore(feat))

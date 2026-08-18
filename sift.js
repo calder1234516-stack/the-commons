@@ -330,6 +330,17 @@ const Sift = (function () {
     return r;
   }
 
+  /* transformers.js has no `CLIPModel.get_image_features`. There is a
+     `CLIPModel` and it loads without complaint, but the object it returns
+     carries neither `get_image_features` nor `get_text_features` — the two
+     halves are separate classes, `CLIPVisionModelWithProjection` and
+     `CLIPTextModelWithProjection`, returning `{image_embeds}` and
+     `{text_embeds}` respectively, both [n, 512].
+
+     Worth knowing because the python API does have those methods, and code
+     written from memory of it fails at the last step after downloading forty
+     megabytes — which is exactly how this was found. ../cloud/cloud.js still
+     calls the methods that do not exist, so its CLIP mode has never run. */
   async function loadCLIP(say) {
     if (clipKit) return clipKit;
     say && say('fetching the reader…');
@@ -337,26 +348,31 @@ const Sift = (function () {
     tf.env.allowLocalModels = false;
     say && say('loading the model — slow once, cached after');
     const id = 'Xenova/clip-vit-base-patch32';
-    const model = await tf.CLIPModel.from_pretrained(id, { dtype: 'q8' });
+    const vision = await tf.CLIPVisionModelWithProjection.from_pretrained(id, { dtype: 'q8' });
+    const text = await tf.CLIPTextModelWithProjection.from_pretrained(id, { dtype: 'q8' });
     const proc = await tf.AutoProcessor.from_pretrained(id);
     const tok = await tf.AutoTokenizer.from_pretrained(id);
-    clipKit = { tf, model, proc, tok };
 
-    textAxes = [];
+    const axes = [];
     for (const b of BUNDLES) {
-      const t = tok(b, { padding: true, truncation: true });
-      textAxes.push(unitRows(await model.get_text_features(t)));
+      axes.push(unitRows(await text(tok(b, { padding: true, truncation: true }))));
     }
+
+    // assigned last, and only once every part of it works. Setting it earlier
+    // means a failure half way leaves a kit that is memoised, incomplete, and
+    // fails differently on the next call than it did on the first.
+    textAxes = axes;
+    clipKit = { tf, vision, proc };
     return clipKit;
   }
 
   async function embed(canvases) {
-    const { tf, model, proc } = clipKit;
+    const { tf, vision, proc } = clipKit;
     const raw = [];
     for (const cv of canvases) {
       raw.push(await tf.RawImage.fromBlob(await new Promise(r => cv.toBlob(r, 'image/png'))));
     }
-    return unitRows(await model.get_image_features(await proc(raw)));
+    return unitRows(await vision(await proc(raw)));
   }
 
   const axisScores = e => textAxes.map(bundle => bundle.reduce((s, p) => s + dot(e, p), 0) / bundle.length);
