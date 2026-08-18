@@ -9,8 +9,8 @@
    archive alone, says so, and refuses contributions. */
 
 window.COMMONS_CONFIG = {
-  url: '',        // https://xxxxxxxxxxxxxxxx.supabase.co
-  anonKey: '',    // the "anon / public" key from Project Settings → API
+  url: 'https://rmwrifnxujmwtzbfhkzq.supabase.co',
+  anonKey: 'sb_publishable_g88RJUPz7QH_rFNedGkeRA_VOqXvfHs',
 
   // How many contributions to pull per request while the archive loads. The
   // cloud fills in as they arrive rather than waiting for the whole set.

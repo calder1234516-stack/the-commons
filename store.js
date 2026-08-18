@@ -19,11 +19,21 @@ const Store = (function () {
   const on = !!(C.url && C.anonKey);
   const base = on ? C.url.replace(/\/+$/, '') : '';
 
-  const headers = () => ({
-    apikey: C.anonKey,
-    Authorization: 'Bearer ' + C.anonKey,
-    'Content-Type': 'application/json',
-  });
+  /* Supabase has two generations of public key and they want different
+     headers. The old one is a JWT — `eyJ…` — and PostgREST reads the role out
+     of it, so it goes in Authorization as a bearer token. The new one is an
+     opaque `sb_publishable_…` string that the gateway trades for a role before
+     PostgREST ever sees it; it belongs in `apikey` and nowhere else, and
+     presenting it as a bearer token is asking the JWT parser to read something
+     that is not a JWT. Both forms are accepted here, and which one you pasted
+     into config.js decides the shape of the request. */
+  const isJWT = /^eyJ/.test(C.anonKey || '');
+
+  const headers = () => {
+    const h = { apikey: C.anonKey, 'Content-Type': 'application/json' };
+    if (isJWT) h.Authorization = 'Bearer ' + C.anonKey;
+    return h;
+  };
 
   async function get(path) {
     const r = await fetch(base + '/rest/v1/' + path, { headers: headers() });
