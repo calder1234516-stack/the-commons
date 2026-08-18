@@ -20,8 +20,18 @@ create table if not exists public.invites (
   active      boolean     not null default true,
   created_at  timestamptz not null default now()
 );
--- deliberately no grants. anon cannot see this table exists.
+-- Two locks, because this is the one table nobody may ever read.
+--
+-- The privilege is revoked outright, which is what actually closes the door:
+-- PostgREST asks as anon, anon has no select, the request fails. Row level
+-- security on top adds a second refusal — enabled with no policy at all, which
+-- denies everyone by default. contribute() and refine() still read it, because
+-- they run as the definer and a table's owner is not subject to its RLS.
+--
+-- The revoke alone was enough. The dashboard's linter cannot see that, and
+-- neither can someone reading this in a hurry, so both are here.
 revoke all on public.invites from anon, authenticated;
+alter table public.invites enable row level security;
 
 -- -------------------------------------------------------------- the archive
 create table if not exists public.contributions (
